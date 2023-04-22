@@ -22,10 +22,12 @@ public class Message {
     private Long id;
     @CreationTimestamp
     private LocalDateTime creationDateTime;
-    private String message;
-    private Long idUserFrom;
-    private Long idUserTo;
+    private String messageText;
+    private boolean isRead;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
     @ManyToOne
     @JoinColumn(name = "chat_id")
     private Chat chat;

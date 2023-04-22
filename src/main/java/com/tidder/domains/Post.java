@@ -21,22 +21,24 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String message;
+    private String messageText;
     private Long countLikes;
     private Long countComments;
     private String attachmentPath;
     @CreationTimestamp
     private LocalDateTime creationDate;
+    @Enumerated(value = EnumType.ORDINAL)
+    private PostStatus postStatus;
 
 
     @ManyToMany
     @JoinTable(
-            name = "likers_posts",
+            name = "liker_and_post",
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> likers;
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> listComments;
 
     @ManyToOne

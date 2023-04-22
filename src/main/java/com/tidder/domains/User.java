@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -26,16 +27,23 @@ public class User {
     private String password;
     @CreationTimestamp
     private LocalDateTime creationDateTime;
-    private boolean active;
+    private boolean isActive;
     private Long postsCount;
     private Long subscribersCount;
     private Long subscriptionsCount;
+    private String profilePicturePath;
+    @Enumerated(value = EnumType.ORDINAL)
+    private Role role;
 
 
-    @ManyToMany(mappedBy = "likers")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Message> messageSet;
+    @ManyToMany(mappedBy = "userSet", cascade = CascadeType.ALL)
+    private Set<Chat> chatSet;
+    @ManyToMany(mappedBy = "likers", cascade = CascadeType.ALL)
     private List<Post> likedPosts;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> postList;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Comment> listComment;
 }

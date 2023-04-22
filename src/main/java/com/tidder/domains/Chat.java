@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -23,9 +24,14 @@ public class Chat {
     private Long id;
     @CreationTimestamp
     private LocalDateTime dateCreation;
-    private Long userId1;
-    private Long userId2;
 
-    @OneToMany(mappedBy = "chat")
+    @ManyToMany
+    @JoinTable(
+            name = "users_chats",
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "chat_id")
+    )
+    private Set<User> userSet;
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
     private List<Message> messageList;
 }
