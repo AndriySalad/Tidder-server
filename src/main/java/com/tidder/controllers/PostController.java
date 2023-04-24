@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -28,9 +30,10 @@ public class PostController {
     }
 
     @PostMapping("/add")
-    public HttpResponse<HttpStatus> addPost(@RequestBody PostDto postDto){
+    public HttpResponse<HttpStatus> addPost(@RequestBody PostDto postDto, Principal principal) throws IOException {
 
-        // put code
+        String userName = principal.getName();
+        postService.createdPost(postDto, userName);
 
         return null;
     }

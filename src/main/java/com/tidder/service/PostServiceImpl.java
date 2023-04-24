@@ -3,15 +3,15 @@ package com.tidder.service;
 import com.tidder.dao.PostRepository;
 import com.tidder.dao.UserRepository;
 import com.tidder.domains.Post;
+import com.tidder.domains.PostStatus;
 import com.tidder.domains.User;
 import com.tidder.dto.PostDto;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +19,7 @@ public class PostServiceImpl implements PostService{
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final FileUpload fileUpload;
 
     @Override
     public List<Post> getAllPosts() {
@@ -32,11 +33,19 @@ public class PostServiceImpl implements PostService{
 
     @Override
     @Transactional
-    public boolean createdPost(PostDto postDto) {
+    public boolean createdPost(PostDto postDto, String userName) throws IOException {
 
-        // Дописати створення нових постів.
-
-        return false;
+        User user = userRepository.getByUserName(userName);
+        String imageURL = fileUpload.uploadFile(postDto.getAttachment());
+        Post post = Post.builder()
+                .attachmentPath(imageURL)
+                .postStatus(PostStatus.AVAILABLE)
+                .countComments(0L)
+                .messageText(postDto.getMessageText())
+                .countLikes(0L)
+                .user(user)
+                .build();
+        return true;
     }
 
     @Override
@@ -44,15 +53,6 @@ public class PostServiceImpl implements PostService{
     public boolean deletePost(Post post) {
         postRepository.delete(post);
         return true;
-    }
-
-    @Override
-    public boolean updatePost(Post post, PostDto updatedPost) {
-        post.setMessageText(updatedPost.getMessageText());
-
-        // TODO обробку прикріплених файлів.
-
-        return false;
     }
 
     @Override
