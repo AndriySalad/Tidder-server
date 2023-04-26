@@ -32,8 +32,8 @@ public class PostController {
     @PostMapping("/add")
     public HttpResponse<HttpStatus> addPost(@RequestBody PostDto postDto, Principal principal) throws IOException {
 
-        String userName = principal.getName();
-        postService.createdPost(postDto, userName);
+        String mail = principal.getName();
+        postService.createdPost(postDto, mail);
 
         return null;
     }

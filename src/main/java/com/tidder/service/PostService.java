@@ -11,7 +11,7 @@ public interface PostService {
 
     List<Post> getAllPosts();
     Post getOne(Long id);
-    boolean createdPost(PostDto postDto, String userName) throws IOException;
+    boolean createdPost(PostDto postDto, String mail) throws IOException;
     boolean deletePost(Post post);
     boolean likedPost(Post post, User user);
     List<User> getLikers(Post post);

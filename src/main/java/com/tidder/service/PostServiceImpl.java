@@ -8,6 +8,7 @@ import com.tidder.domains.User;
 import com.tidder.dto.PostDto;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -33,9 +34,9 @@ public class PostServiceImpl implements PostService{
 
     @Override
     @Transactional
-    public boolean createdPost(PostDto postDto, String userName) throws IOException {
+    public boolean createdPost(PostDto postDto, String mail) throws IOException {
 
-        User user = userRepository.getByUserName(userName);
+        User user = userRepository.findByMail(mail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         String imageURL = fileUpload.uploadFile(postDto.getAttachment());
         Post post = Post.builder()
                 .attachmentPath(imageURL)
