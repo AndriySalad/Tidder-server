@@ -59,7 +59,7 @@ public class User implements UserDetails {
     }
     @Override
     public String getUsername() {
-        return this.mail;
+        return mail;
     }
     @Override
     public boolean isAccountNonExpired() {
@@ -67,11 +67,11 @@ public class User implements UserDetails {
     }
     @Override
     public boolean isAccountNonLocked() {
-        return this.isActive;
+        return isActive;
     }
     @Override
     public String getPassword(){
-        return this.password;
+        return password;
     }
     @Override
     public boolean isCredentialsNonExpired() {
@@ -79,6 +79,6 @@ public class User implements UserDetails {
     }
     @Override
     public boolean isEnabled() {
-        return this.isActive;
+        return isActive;
     }
 }
