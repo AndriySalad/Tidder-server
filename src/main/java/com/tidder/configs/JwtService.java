@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
     private final String secretKey = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private final long jwtExpiration = 60000;
-    private final long refreshExpiration = 604800000;
+    private final long jwtExpiration = 6000000000000L;
+    private final long refreshExpiration = 604800000000000L;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

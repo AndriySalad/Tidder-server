@@ -5,14 +5,17 @@ import com.tidder.dao.UserRepository;
 import com.tidder.domains.Post;
 import com.tidder.domains.PostStatus;
 import com.tidder.domains.User;
-import com.tidder.dto.PostDto;
+import com.tidder.dto.PostMessage;
+import com.tidder.dto.UserDto;
+import com.tidder.mapper.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -21,6 +24,7 @@ public class PostServiceImpl implements PostService{
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final FileUpload fileUpload;
+    private final UserMapper userMapper;
 
     @Override
     public List<Post> getAllPosts() {
@@ -34,19 +38,26 @@ public class PostServiceImpl implements PostService{
 
     @Override
     @Transactional
-    public boolean createdPost(PostDto postDto, String mail) throws IOException {
+    public Post createdPost(MultipartFile multipartFile, User user) throws IOException {
+        String imageURL = fileUpload.uploadFile(multipartFile);
 
-        User user = userRepository.findByMail(mail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        String imageURL = fileUpload.uploadFile(postDto.getAttachment());
         Post post = Post.builder()
                 .attachmentPath(imageURL)
                 .postStatus(PostStatus.AVAILABLE)
                 .countComments(0L)
-                .messageText(postDto.getMessageText())
+                .messageText("")
                 .countLikes(0L)
                 .user(user)
                 .build();
-        return true;
+
+        List<Post> postList = user.getPostList();
+        postList.add(post);
+        user.setPostList(postList);
+        user.setPostsCount(user.getPostsCount() + 1);
+        userRepository.save(user);
+        postRepository.save(post);
+
+        return post;
     }
 
     @Override
@@ -58,7 +69,7 @@ public class PostServiceImpl implements PostService{
 
     @Override
     @Transactional
-    public boolean likedPost(Post post, User user) {
+    public Post likedPost(Post post, User user) {
         if (post.getLikers().stream().filter(user1 -> user1.equals(user)).findFirst().isEmpty()){
             post.setCountLikes(post.getCountLikes() + 1);
             List<User> userList = post.getLikers();
@@ -69,16 +80,33 @@ public class PostServiceImpl implements PostService{
             postList.add(post);
             user.setLikedPosts(postList);
             userRepository.save(user);
-            return true;
         }
         else{
-            return false;
+            post.setCountLikes(post.getCountLikes() - 1);
+            List<User> userList = post.getLikers();
+            userList.remove(user);
+            post.setLikers(userList);
+            postRepository.save(post);
+            List<Post> postList = user.getLikedPosts();
+            postList.remove(post);
+            user.setLikedPosts(postList);
+            userRepository.save(user);
         }
-
+        return post;
     }
 
     @Override
-    public List<User> getLikers(Post post) {
-        return post.getLikers();
+    public List<UserDto> getLikers(Post post) {
+        return post.getLikers().stream()
+                .map(userMapper)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Post addMessageToPost(PostMessage postMessage, Post post) {
+
+        post.setMessageText(postMessage.getMessage());
+        postRepository.save(post);
+        return post;
     }
 }

@@ -1,42 +1,42 @@
 package com.tidder.controllers;
 
+import com.tidder.domains.User;
+import com.tidder.dto.UserDto;
 import com.tidder.service.UserService;
-import com.tidder.utils.AuthenticationRequest;
-import com.tidder.utils.AuthenticationResponse;
-import com.tidder.utils.RegisterRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/user")
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
-    ) {
-        return ResponseEntity.ok(service.register(request));
-    }
-    @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request
-    ) {
-        return ResponseEntity.ok(service.authenticate(request));
+    @GetMapping("/profile")
+    public User showProfile(){
+        return userService.getByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
-    @PostMapping("/refresh-token")
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        service.refreshToken(request, response);
+    @GetMapping
+    public List<UserDto> getAll(){
+        return userService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    UserDto getById(@PathVariable Long id){
+        return userService.findById(id);
+    }
+
+    @PutMapping("/profile/addavatar")
+    UserDto addAvatar(@RequestBody MultipartFile multipartFile) throws IOException {
+        User user = userService.getByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        return userService.addAvatar(multipartFile, user);
     }
 }

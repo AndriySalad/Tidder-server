@@ -1,5 +1,6 @@
 package com.tidder.domains;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,16 +42,16 @@ public class User implements UserDetails {
     private String profilePicturePath;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+    @JsonManagedReference
     private Set<User> friends;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Message> messageSet;
-    @ManyToMany(mappedBy = "userSet", cascade = CascadeType.ALL)
-    private Set<Chat> chatSet;
     @ManyToMany(mappedBy = "likers", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Post> likedPosts;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Post> postList;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Comment> listComment;
 
     @Override
