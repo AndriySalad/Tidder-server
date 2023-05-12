@@ -19,7 +19,7 @@ public record UserDto(
         Long subscribersCount,
         Long subscriptionsCount,
         String profilePicturePath,
-        Set<User> friends,
+        List<User> friends,
         List<Post> postList
 ) {
 }

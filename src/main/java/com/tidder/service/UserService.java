@@ -28,4 +28,8 @@ public interface UserService {
     UserDto findById(Long id);
 
     UserDto addAvatar(MultipartFile multipartFile, User user) throws IOException;
+
+    UserDto makeSubscribe(User subscriber, UserDto subscriptionUser);
+    List<UserDto> getMySubscriptions(User user);
+    List<UserDto> getSubscriptions(UserDto userDto);
 }

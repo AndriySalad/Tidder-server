@@ -17,7 +17,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -156,6 +155,40 @@ public class UserServiceImpl implements UserService {
         user.setProfilePicturePath(path);
         repository.save(user);
         return userMapper.apply(user);
+    }
+
+    @Override
+    public UserDto makeSubscribe(User subscriber, UserDto subscriptionUserDto) {
+        List<User> listFriends = subscriber.getFriends();
+        User subscriptionUser = repository.findByMail(subscriptionUserDto.mail()).orElseThrow(EntityNotFoundException::new);
+
+        if (subscriber.getFriends().stream().filter(user1 -> user1.equals(subscriptionUser)).findFirst().isEmpty()){
+            listFriends.add(subscriptionUser);
+            subscriber.setFriends(listFriends);
+            subscriber.setSubscriptionsCount(subscriptionUser.getSubscriptionsCount() + 1);
+            subscriptionUser.setSubscribersCount(subscriber.getSubscribersCount() + 1);
+            repository.save(subscriber);
+            repository.save(subscriptionUser);
+        }
+        else {
+            listFriends.remove(subscriptionUser);
+            subscriber.setFriends(listFriends);
+            subscriber.setSubscriptionsCount(subscriptionUser.getSubscriptionsCount() - 1);
+            subscriptionUser.setSubscribersCount(subscriber.getSubscribersCount() - 1);
+            repository.save(subscriber);
+            repository.save(subscriptionUser);
+        }
+        return userMapper.apply(subscriptionUser);
+    }
+
+    @Override
+    public List<UserDto> getMySubscriptions(User user) {
+        return user.getFriends().stream().map(userMapper).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDto> getSubscriptions(UserDto userDto) {
+        return userDto.friends().stream().map(userMapper).collect(Collectors.toList());
     }
 
 

@@ -43,7 +43,7 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
     @JsonManagedReference
-    private Set<User> friends;
+    private List<User> friends;
     @ManyToMany(mappedBy = "likers", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Post> likedPosts;
